@@ -124,12 +124,244 @@ button.record{background:#b82f2c;color:#fff}
 .syncDot{display:inline-block;width:9px;height:9px;border-radius:999px;background:#667085;margin-right:6px}
 .syncDot.on{background:#50c878}.syncDot.busy{background:#e7b04b}.syncDot.off{background:#667085}.syncDot.err{background:#ef6b66}
 
+
+/* V7.2 — tema oscuro refinado */
+:root{
+  color-scheme:dark;
+  --bg:#080a0f;
+  --panel:#11141b;
+  --panel2:#151923;
+  --ink:#f2f4f8;
+  --muted:#929baa;
+  --line:#252b37;
+  --soft:#1a202b;
+  --accent:#8492ff;
+  --accent2:#a8b1ff;
+  --danger:#ff7f79;
+  --ok:#67d79b;
+  --rec:#e05a54;
+}
+html{background:var(--bg)}
+body{
+  background:
+    radial-gradient(circle at 50% -180px, rgba(132,146,255,.15), transparent 420px),
+    var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{
+  max-width:1040px;
+  padding:calc(24px + env(safe-area-inset-top)) 16px calc(70px + env(safe-area-inset-bottom));
+}
+h1{
+  font-size:30px;
+  letter-spacing:-.035em;
+  font-weight:820;
+  color:#fafbff;
+}
+.sub{
+  color:#8d97a7;
+  font-size:14px;
+  max-width:720px;
+}
+.panel,.card{
+  background:rgba(17,20,27,.94);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:0 12px 35px rgba(0,0,0,.18);
+}
+.panel{padding:16px}
+.settings{
+  box-shadow:none;
+  background:#0f1219;
+}
+.settings summary{
+  color:#dfe4ee;
+  font-weight:700;
+  letter-spacing:-.01em;
+}
+.settings[open] summary{margin-bottom:4px}
+input[type=password],input[type=text],input[type=search],select,textarea{
+  background:#0b0e14!important;
+  color:#f1f4f9!important;
+  border:1px solid #2d3441!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+textarea{
+  min-height:170px;
+  padding:15px;
+}
+textarea::placeholder,input::placeholder{color:#687386}
+textarea:focus,input:focus,select:focus{
+  outline:3px solid rgba(132,146,255,.14);
+  border-color:#6573d4!important;
+}
+button{
+  background:var(--accent);
+  color:#090b11;
+  border-radius:11px;
+  font-weight:780;
+  box-shadow:none;
+  transition:transform .08s ease,opacity .15s ease,background .15s ease;
+}
+button:active{transform:scale(.985)}
+button.secondary{
+  background:#202633;
+  color:#e9edf5;
+}
+button.ghost{
+  background:transparent;
+  color:#cbd3df;
+  border:1px solid #303746;
+}
+button.danger{
+  background:#2b171a;
+  color:#ff9d98;
+  border:1px solid #4a2226;
+}
+button.record{
+  background:#d94f49;
+  color:white;
+}
+.audioPanel{
+  background:
+    linear-gradient(180deg, rgba(132,146,255,.055), transparent 120px),
+    #11141b;
+}
+.audioTitle,.photoTitle{
+  font-size:18px;
+  letter-spacing:-.015em;
+}
+.audioHelp,.photoHelp,.hint,.meta,.sub,.status,footer{
+  color:#929baa;
+}
+.meter{
+  height:7px;
+  background:#242a35;
+}
+.meter>div{
+  background:linear-gradient(90deg,#7e8cff,#aeb7ff);
+}
+.transcript{
+  background:#0d1017;
+  border-color:#272e3a;
+  color:#d9e0ea;
+  border-radius:12px;
+}
+.photoThumb{
+  border-color:#2a303d;
+  background:#0c0f15;
+  border-radius:14px;
+}
+.photoLabel{
+  background:rgba(8,10,15,.84);
+  color:#edf1f7;
+  backdrop-filter:blur(6px);
+}
+.dashboard{
+  gap:14px;
+  margin-top:16px;
+}
+.card{
+  padding:15px 16px;
+  min-height:125px;
+}
+.card h2{
+  font-size:15.5px;
+  letter-spacing:-.012em;
+  color:#e8ecf3;
+  padding-bottom:4px;
+}
+.count{
+  background:#202633;
+  color:#aab4c4;
+}
+.item{
+  border-color:#242a35;
+  padding:12px 0;
+}
+.title{
+  font-size:14.5px;
+  font-weight:720;
+  color:#f0f3f8;
+}
+.note{color:#b7c0ce}
+.badge{
+  background:#252c39;
+  color:#bcc6d4;
+}
+.warn{
+  background:#3b2c11;
+  color:#ffdc85;
+}
+.areaBadge{
+  font-size:10px;
+  letter-spacing:.02em;
+  padding:3px 7px;
+  border:1px solid transparent;
+}
+.area-militancia{
+  background:#251c36;
+  color:#d3b8ff;
+  border-color:#3e2b59;
+}
+.area-estudio{
+  background:#152a39;
+  color:#a9d9fa;
+  border-color:#23465f;
+}
+.area-personal{
+  background:#173126;
+  color:#9ce1bf;
+  border-color:#27523f;
+}
+.area-sin-categoria{
+  background:#222833;
+  color:#afb9c7;
+  border-color:#343d4b;
+}
+.topbar{
+  gap:8px;
+  margin-top:15px;
+}
+.topbar input{min-width:220px}
+.topbar select{min-width:150px}
+.questionbox{
+  background:#251f12;
+  border-color:#4d3d19;
+  border-radius:15px;
+}
+.questionbox h3,.question{color:#f6d991}
+.syncGrid{gap:10px}
+.syncDot{
+  width:8px;height:8px;
+  box-shadow:0 0 0 3px rgba(255,255,255,.035);
+}
+.syncDot.on{background:#5fd79a}
+.syncDot.busy{background:#e4b45d}
+.syncDot.err{background:#f27872}
+.empty{color:#6f7988}
+.mini{
+  border-radius:8px;
+  padding:6px 9px;
+}
+@media(max-width:750px){
+  .wrap{padding-left:12px;padding-right:12px}
+  h1{font-size:28px}
+  .panel,.card{border-radius:16px}
+  .dashboard{grid-template-columns:1fr}
+  .topbar{display:grid;grid-template-columns:1fr 1fr}
+  .topbar input{grid-column:1/-1;width:100%}
+  .topbar select{width:100%}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Asistente IA</h1>
-  <div class="sub">Versión 7.1 · audio + texto + fotos + categorías + sincronización Safari/compu.</div>
+  <div class="sub">Versión 7.2 · sincronización estable + audio + fotos + categorías.</div>
 
   <details class="panel settings" id="settingsBox">
     <summary>⚙️ Configuración de IA</summary>
@@ -163,6 +395,7 @@ button.record{background:#b82f2c;color:#fff}
       <div class="row" style="margin-top:9px">
         <button class="secondary" onclick="connectSync()">Conectar y sincronizar</button>
         <button class="ghost" onclick="syncNow()">Sincronizar ahora</button>
+        <button class="ghost" onclick="diagnoseSync()">Probar puente</button>
         <button class="ghost" onclick="toggleSyncSecret()">Ver / ocultar clave</button>
       </div>
       <div id="syncStatus" class="status"><span class="syncDot off"></span>No configurado.</div>
@@ -773,9 +1006,10 @@ async function processRecordedAudio(){
 }
 
 
-/* SINCRONIZACIÓN GOOGLE v7.1
-   Safari-safe: POST clásico para subir + JSONP para leer.
-   No depende de iframes de Apps Script ni cookies de terceros. */
+/* SINCRONIZACIÓN GOOGLE v7.2
+   Escritura: POST clásico cross-origin.
+   Lectura: JSONP.
+   La hoja se abre por ID persistente configurado una sola vez en Apps Script. */
 let syncPushTimer=null;
 let autoSyncTimer=null;
 let syncBusy=false;
@@ -787,30 +1021,36 @@ function syncSetStatus(msg,kind="off"){
   if(!syncStatus)return;
   syncStatus.innerHTML=`<span class="syncDot ${kind}"></span>${esc(msg)}`;
 }
-function toggleSyncSecret(){syncSecret.type=syncSecret.type==="password"?"text":"password"}
+function toggleSyncSecret(){
+  syncSecret.type=syncSecret.type==="password"?"text":"password";
+}
+function cleanSyncUrl(url){
+  return (url||"").trim().replace(/[?#].*$/,"");
+}
 
 function initSync(){
   syncUrl.value=localStorage.getItem(SYNC_URL_KEY)||"";
   syncSecret.value=localStorage.getItem(SYNC_SECRET_KEY)||"";
+
   if(syncConfigured()){
-    syncSetStatus("Configurado. Preparando sincronización…","busy");
-    syncNow().catch(()=>{});
+    syncSetStatus("Configurado · comprobando Google…","busy");
+    syncNow(true).catch(()=>{});
   }else{
     syncSetStatus("No configurado.","off");
   }
 
   clearInterval(autoSyncTimer);
   autoSyncTimer=setInterval(()=>{
-    if(syncConfigured()&&!document.hidden)syncNow(true).catch(()=>{});
-  },15000);
+    if(syncConfigured()&&!document.hidden) syncNow(true).catch(()=>{});
+  },18000);
 }
 
 async function connectSync(){
-  const url=syncUrl.value.trim();
+  const url=cleanSyncUrl(syncUrl.value);
   const secret=syncSecret.value.trim();
 
-  if(!/^https:\/\/script\.google\.com\/.+\/exec(?:\?.*)?$/.test(url)){
-    syncSetStatus("Pegá la URL de Apps Script que termina en /exec.","err");
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)){
+    syncSetStatus("La URL debe ser la de la aplicación web y terminar exactamente en /exec.","err");
     return;
   }
   if(secret.length<12){
@@ -820,118 +1060,170 @@ async function connectSync(){
 
   localStorage.setItem(SYNC_URL_KEY,url);
   localStorage.setItem(SYNC_SECRET_KEY,secret);
-  syncSetStatus("Probando conexión…","busy");
+  syncUrl.value=url;
+
+  syncSetStatus("Probando el puente…","busy");
 
   try{
-    // Pull primero: confirma que Safari puede llegar al web app.
+    const ping=await jsonpAction("ping");
+
+    if(!ping?.storageReady){
+      throw new Error("El puente responde, pero falta vincular la hoja. En Apps Script ejecutá una vez la función setupStorage.");
+    }
+
+    syncSetStatus("Puente correcto · sincronizando…","busy");
+
     const remote=await pullFromGoogle();
-    if(!remote || !Array.isArray(remote.items)) throw new Error("El puente respondió con datos inválidos.");
+    state.items=mergeItems(state.items,remote.items||[]);
+    persistLocal();
+    render();
 
-    state.items=mergeItems(state.items,remote.items);
-    persistLocal();render();
-
-    // Después sube el estado fusionado y verifica de nuevo.
     await pushToGoogle(state.items);
+    await sleep(1200);
+
     const verify=await pullFromGoogle();
     state.items=mergeItems(state.items,verify.items||[]);
-    persistLocal();render();
+    persistLocal();
+    render();
 
     const t=new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
-    syncSetStatus(`Conectado y sincronizado · ${t}`,"on");
+    syncSetStatus(`Conectado · ${t}`,"on");
   }catch(e){
     syncSetStatus(e.message||"No pude conectar con Google.","err");
   }
 }
 
-function jsonp(url,timeoutMs=15000){
-  return new Promise((resolve,reject)=>{
-    const cb="__asistenteSync_"+Date.now()+"_"+Math.random().toString(36).slice(2);
-    let done=false;
-    const script=document.createElement("script");
+async function diagnoseSync(){
+  const url=cleanSyncUrl(syncUrl.value);
+  const secret=syncSecret.value.trim();
+  if(url)localStorage.setItem(SYNC_URL_KEY,url);
+  if(secret)localStorage.setItem(SYNC_SECRET_KEY,secret);
 
-    const cleanup=()=>{
-      if(done)return;
-      done=true;
+  syncSetStatus("Probando puente…","busy");
+  try{
+    const ping=await jsonpAction("ping");
+    if(!ping.storageReady){
+      syncSetStatus("Google responde ✓ · falta ejecutar setupStorage en Apps Script.","err");
+      return;
+    }
+    const pull=await pullFromGoogle();
+    syncSetStatus(`Google responde ✓ · base lista ✓ · ${pull.items.length} elemento${pull.items.length===1?"":"s"} remoto${pull.items.length===1?"":"s"}.`,"on");
+  }catch(e){
+    syncSetStatus(e.message||"Falló la prueba.","err");
+  }
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function jsonpAction(action,timeoutMs=20000){
+  return new Promise((resolve,reject)=>{
+    const base=cleanSyncUrl(localStorage.getItem(SYNC_URL_KEY)||"");
+    const secret=localStorage.getItem(SYNC_SECRET_KEY)||"";
+    if(!base||!secret){
+      reject(new Error("Falta configurar la sincronización."));
+      return;
+    }
+
+    const cb="__asst_"+Date.now()+"_"+Math.random().toString(36).slice(2);
+    const script=document.createElement("script");
+    let ended=false;
+
+    const finish=()=>{
+      if(ended)return;
+      ended=true;
       clearTimeout(timer);
       try{delete window[cb]}catch{}
       script.remove();
     };
 
     window[cb]=(data)=>{
-      cleanup();
-      if(data && data.ok===false) reject(new Error(data.error||"Error de sincronización."));
-      else resolve(data);
+      finish();
+      if(data?.ok===false){
+        reject(new Error(data.error||"Google devolvió un error."));
+      }else{
+        resolve(data||{});
+      }
     };
 
     const timer=setTimeout(()=>{
-      cleanup();
-      reject(new Error("Google no respondió. Revisá que la implementación permita acceso a “Cualquiera” y que la URL termine en /exec."));
+      finish();
+      reject(new Error("Google no respondió. Si el enlace abre en el navegador, actualizá la implementación de Apps Script a la versión 7.2."));
     },timeoutMs);
 
-    const sep=url.includes("?")?"&":"?";
-    script.src=url+sep+"action=pull&secret="+encodeURIComponent(localStorage.getItem(SYNC_SECRET_KEY)||"")+
-      "&callback="+encodeURIComponent(cb)+"&_="+Date.now();
+    const params=new URLSearchParams({
+      action,
+      secret,
+      callback:cb,
+      _:String(Date.now())
+    });
+
+    script.src=base+"?"+params.toString();
+    script.async=true;
     script.onerror=()=>{
-      cleanup();
-      reject(new Error("No pude leer el puente de Google desde este navegador."));
+      finish();
+      reject(new Error("No pude cargar la respuesta del puente de Google."));
     };
+
     document.head.appendChild(script);
   });
 }
 
 async function pullFromGoogle(){
-  const url=localStorage.getItem(SYNC_URL_KEY)||"";
-  if(!url) throw new Error("Falta la URL de sincronización.");
-  return await jsonp(url);
+  const data=await jsonpAction("pull");
+  if(!Array.isArray(data.items)) throw new Error("Google respondió, pero la base devolvió un formato inválido.");
+  return data;
 }
 
 function pushToGoogle(items){
   return new Promise((resolve,reject)=>{
-    const url=localStorage.getItem(SYNC_URL_KEY)||"";
+    const url=cleanSyncUrl(localStorage.getItem(SYNC_URL_KEY)||"");
     const secret=localStorage.getItem(SYNC_SECRET_KEY)||"";
-    if(!url || !secret){reject(new Error("Falta configurar la sincronización."));return;}
+    if(!url||!secret){
+      reject(new Error("Falta configurar la sincronización."));
+      return;
+    }
 
-    const iframe=document.createElement("iframe");
-    const target="syncpost_"+Date.now()+"_"+Math.random().toString(36).slice(2);
-    iframe.name=target;
-    iframe.style.display="none";
+    const frame=document.createElement("iframe");
+    frame.name="asst_post_"+Date.now()+"_"+Math.random().toString(36).slice(2);
+    frame.style.display="none";
 
     const form=document.createElement("form");
     form.method="POST";
     form.action=url;
-    form.target=target;
+    form.target=frame.name;
     form.style.display="none";
 
-    const add=(name,value)=>{
-      const inp=document.createElement("input");
-      inp.type="hidden";inp.name=name;inp.value=value;form.appendChild(inp);
+    const field=(name,value)=>{
+      const el=document.createElement("input");
+      el.type="hidden";
+      el.name=name;
+      el.value=value;
+      form.appendChild(el);
     };
-    add("secret",secret);
-    add("items",JSON.stringify(items||[]));
 
-    document.body.appendChild(iframe);
+    field("action","sync");
+    field("secret",secret);
+    field("items",JSON.stringify(items||[]));
+
+    document.body.appendChild(frame);
     document.body.appendChild(form);
 
-    let finished=false;
-    const cleanup=()=>{
-      if(finished)return;
-      finished=true;
-      form.remove();
-      setTimeout(()=>iframe.remove(),300);
-    };
-
-    // No necesitamos leer la respuesta cross-origin: el siguiente pull confirma el guardado.
-    setTimeout(()=>{
-      cleanup();
-      resolve(true);
-    },1100);
-
+    let submitted=false;
     try{
       form.submit();
+      submitted=true;
     }catch(e){
-      cleanup();
+      form.remove();
+      frame.remove();
       reject(new Error("No pude enviar los cambios a Google."));
+      return;
     }
+
+    setTimeout(()=>{
+      form.remove();
+      frame.remove();
+      if(submitted)resolve(true);
+    },900);
   });
 }
 
@@ -941,38 +1233,50 @@ function itemTime(x){
 }
 function mergeItems(a,b){
   const map=new Map();
+
   for(const x of [...(a||[]),...(b||[])]){
     if(!x?.id)continue;
-    const n={
+
+    const normalized={
       ...x,
       area:["militancia","estudio","personal","sin_categoria"].includes(x.area)?x.area:"sin_categoria",
       updatedAt:x.updatedAt||x.created||new Date().toISOString(),
       deleted:!!x.deleted
     };
-    const prev=map.get(n.id);
-    if(!prev||itemTime(n)>itemTime(prev))map.set(n.id,n);
+
+    const prev=map.get(normalized.id);
+    if(!prev||itemTime(normalized)>itemTime(prev)){
+      map.set(normalized.id,normalized);
+    }
   }
+
   return [...map.values()];
 }
 
 async function syncNow(silent=false){
   if(!syncConfigured()||syncBusy)return;
   syncBusy=true;
+
   if(!silent)syncSetStatus("Sincronizando…","busy");
 
   try{
-    // 1) trae cambios que pudo haber hecho el otro dispositivo
-    const first=await pullFromGoogle();
-    state.items=mergeItems(state.items,first.items||[]);
-    persistLocal();render();
+    const ping=await jsonpAction("ping");
+    if(!ping?.storageReady){
+      throw new Error("Falta ejecutar setupStorage una vez en Apps Script.");
+    }
 
-    // 2) sube la versión fusionada
+    const incoming=await pullFromGoogle();
+    state.items=mergeItems(state.items,incoming.items||[]);
+    persistLocal();
+    render();
+
     await pushToGoogle(state.items);
+    await sleep(1000);
 
-    // 3) confirma y vuelve a fusionar
     const final=await pullFromGoogle();
     state.items=mergeItems(state.items,final.items||[]);
-    persistLocal();render();
+    persistLocal();
+    render();
 
     const t=new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
     syncSetStatus(`Sincronizado · ${t}`,"on");
@@ -988,6 +1292,7 @@ function scheduleSync(){
   clearTimeout(syncPushTimer);
   syncPushTimer=setTimeout(()=>syncNow(true).catch(()=>{}),700);
 }
+
 document.addEventListener("visibilitychange",()=>{
   if(!document.hidden&&syncConfigured())syncNow(true).catch(()=>{});
 });

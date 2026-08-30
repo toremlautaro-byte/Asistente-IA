@@ -3,8 +3,8 @@
   "short_name": "Asistente IA",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#090d14",
-  "theme_color": "#0b0f17",
+  "background_color": "#080a0f",
+  "theme_color": "#080a0f",
   "icons": [
     {
       "src": "icon-192.png",
