@@ -531,6 +531,46 @@ button.record{
   .editorModal{padding:15px;border-radius:17px}
 }
 
+
+/* Mentor v7.5 — una sola conversación */
+.unifiedHint{
+  margin:10px 0 0;
+  padding:10px 11px;
+  border:1px solid #2a3140;
+  background:#0d1118;
+  border-radius:12px;
+  font-size:12.5px;
+  color:#9ca7b8;
+  line-height:1.45;
+}
+.actionPreview{
+  display:none;
+  margin-top:12px;
+  padding:12px;
+  background:#0d1118;
+  border:1px solid #303847;
+  border-radius:14px;
+}
+.actionPreview.visible{display:block}
+.actionPreview h3{margin:0 0 8px;font-size:14px}
+.actionRow{
+  padding:9px 0;
+  border-top:1px solid #242b36;
+  font-size:12.5px;
+  line-height:1.45;
+}
+.actionRow:first-of-type{border-top:0}
+.actionTag{
+  display:inline-block;
+  padding:2px 6px;
+  margin-right:5px;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:800;
+  background:#222a37;
+  color:#cbd5e4;
+}
+
 </style>
 </head>
 <body>
@@ -540,7 +580,7 @@ button.record{
     <div>
       <h1>MENTOR</h1>
       <div class="mentorTag">Ordená. Pensá. Avanzá.</div>
-      <div class="sub">Tu espacio para ordenar, editar y reorganizar lo que tenés pendiente.</div>
+      <div class="sub">Decime lo que necesitás. Mentor decide si hay que agregar, cambiar, mover, completar o borrar.</div>
     </div>
   </div>
 
@@ -585,32 +625,6 @@ button.record{
   </details>
 
 
-  <div class="modeSwitcher">
-    <button id="addModeBtn" class="active" onclick="setMentorMode('add')">＋ Agregar cosas</button>
-    <button id="changeModeBtn" onclick="setMentorMode('change')">✦ Cambiar lo que ya tengo</button>
-  </div>
-
-  <div id="commandPanel" class="panel commandPanel">
-    <div style="font-weight:800;margin-bottom:6px">✦ Pedile cambios a Mentor</div>
-    <div class="hint" style="margin-top:0;margin-bottom:9px">
-      Ej.: “Pasá matemática a Estudio, mové la reunión al martes a las 18 y marcá la ficha de salud como hecha”.
-    </div>
-    <textarea id="commandInput" style="min-height:115px" placeholder="Decime qué querés cambiar de lo que ya está cargado..."></textarea>
-    <div class="row" style="margin-top:9px">
-      <button id="commandBtn" onclick="proposeMentorChanges()">✦ Proponer cambios</button>
-      <button class="secondary" onclick="commandInput.value=''">Limpiar</button>
-    </div>
-    <div id="commandStatus" class="status"></div>
-    <div id="commandPreview" class="commandPreview">
-      <h3>Cambios que entendí</h3>
-      <div id="changeRows"></div>
-      <div class="row" style="margin-top:10px">
-        <button onclick="applyPendingChanges()">Aplicar cambios</button>
-        <button class="ghost" onclick="cancelPendingChanges()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
   <div class="panel photoBox">
     <div class="photoTitle">📷 Fotos y capturas</div>
     <div class="photoHelp">
@@ -630,10 +644,10 @@ button.record{
 
 <div class="panel audioPanel">
     <div class="audioTitle">🎙️ Contame todo</div>
-    <div class="audioHelp">Tocá Grabar, hablá todo lo que quieras y recién cuando terminás tocá Detener y ordenar. No usa el dictado cortado del navegador: guarda el audio completo.</div>
+    <div class="audioHelp">Tocá Grabar y hablá normalmente. Mentor decide solo si estás agregando algo nuevo o cambiando algo que ya existe.</div>
     <div class="row">
       <button id="recordBtn" class="record" onclick="startRecording()">● Grabar</button>
-      <button id="stopBtn" class="secondary" onclick="stopRecording()" disabled>■ Detener y ordenar</button>
+      <button id="stopBtn" class="secondary" onclick="stopRecording()" disabled>■ Detener y entender</button>
       <span id="timer" class="timer">00:00</span>
     </div>
     <div class="audioQuality">
@@ -648,13 +662,24 @@ button.record{
   </div>
 
   <div class="panel">
-    <div style="font-weight:800;margin-bottom:8px">⌨️ O escribilo / pegalo</div>
-    <textarea id="inbox" placeholder="Ej.: Tengo que comprarme la boina para Bariloche, pintar la remera, el lunes y miércoles rindo, el viernes matemática así que tengo que estudiar antes, y resolver lo de la ficha de salud."></textarea>
+    <div style="font-weight:800;margin-bottom:8px">⌨️ Escribí o dictá lo que necesitás</div>
+    <textarea id="inbox" placeholder="Ej.: Agregá comprar cartulina para mañana. La reunión de militancia del jueves pasala al viernes a las 19. Matemática ya la hice."></textarea>
     <div class="row" style="margin-top:10px">
-      <button id="organizeBtn" onclick="organizeText()">✨ Entender y ordenar texto</button>
+      <button id="organizeBtn" onclick="handleMentorText()">✨ Entender y hacer</button>
       <button class="secondary" onclick="document.getElementById('inbox').value=''">Limpiar</button>
     </div>
     <div id="textStatus" class="status"></div>
+    <div class="unifiedHint">
+      Podés mezclar altas y cambios en la misma frase. Ej.: “Agregá comprar cartulina para mañana y mové la reunión de militancia del jueves al viernes”.
+    </div>
+    <div id="actionPreview" class="actionPreview">
+      <h3>Lo que Mentor entendió</h3>
+      <div id="actionRows"></div>
+      <div class="row" style="margin-top:10px">
+        <button onclick="applyUnifiedActions()">Aplicar</button>
+        <button class="ghost" onclick="cancelUnifiedActions()">Cancelar</button>
+      </div>
+    </div>
   </div>
 
   <div id="questionbox" class="questionbox">
@@ -836,6 +861,37 @@ const commandSchema={
     }
   },
   required:["summary","changes"],
+  additionalProperties:false
+};
+
+
+const unifiedSchema={
+  type:"object",
+  properties:{
+    summary:{type:"string"},
+    actions:{
+      type:"array",
+      items:{
+        type:"object",
+        properties:{
+          action:{type:"string",enum:["create","update","complete","reopen","delete"]},
+          id:{type:"string"},
+          type:{type:"string",enum:["KEEP","task","event","waiting","idea","note"]},
+          area:{type:"string",enum:["KEEP","militancia","estudio","personal","sin_categoria"]},
+          title:{type:"string"},
+          details:{type:"string"},
+          date:{type:"string"},
+          time:{type:"string"},
+          priority:{type:"string",enum:["KEEP","high","medium","low","none"]},
+          reason:{type:"string"}
+        },
+        required:["action","id","type","area","title","details","date","time","priority","reason"],
+        additionalProperties:false
+      }
+    },
+    questions:{type:"array",items:{type:"string"}}
+  },
+  required:["summary","actions","questions"],
   additionalProperties:false
 };
 
@@ -1095,239 +1151,219 @@ function ingest(result,source){
   return (result.items||[]).length;
 }
 
-async function organizeText(){
-  const t=inbox.value.trim();
-  if(!t && !selectedImages.length){
-    setStatus(textStatus,"Escribí algo o agregá una foto primero.","err");return;
-  }
-  organizeBtn.disabled=true;organizeBtn.textContent="Entendiendo…";
-  setStatus(textStatus,"La IA está leyendo y ordenando…","");
-  try{
-    const parts=[
-      ...imageParts(),
-      {text:t
-        ? "Organizá este relato junto con las imágenes adjuntas, si las hay:\n\n"+t
-        : "Analizá estas imágenes y extraé únicamente la información útil para mi agenda, tareas, esperas, ideas o notas. No inventes acciones que la imagen no justifique."
-      }
-    ];
-    const result=await geminiRequest(parts);
-    const n=ingest(result,t||"[fotos]");
-    inbox.value="";
-    clearPhotos();
-    setStatus(textStatus,`Listo: ${n} elemento${n===1?"":"s"}.`,"ok");
-  }catch(e){
-    console.error("Mentor/Gemini:",e);setStatus(textStatus,e.message,"err");settingsBox.open=true;
-  }finally{
-    organizeBtn.disabled=false;organizeBtn.textContent="✨ Entender y ordenar texto";
-  }
-}
 
 
-/* MODOS + CAMBIOS SOBRE ELEMENTOS EXISTENTES */
-let mentorMode="add";
-let pendingChanges=[];
 
-function setMentorMode(mode){
-  mentorMode=mode;
-  addModeBtn.classList.toggle("active",mode==="add");
-  changeModeBtn.classList.toggle("active",mode==="change");
-  commandPanel.classList.toggle("visible",mode==="change");
-  // El audio respeta el modo actual.
-  if(mode==="change"){
-    audioStatus.textContent="Modo cambios: grabá una instrucción para modificar lo que ya tenés.";
-  }else{
-    audioStatus.textContent="Listo para grabar.";
-  }
-}
 
-function activeItemsForAI(){
+/* MOTOR UNIFICADO: Mentor decide si crea o modifica */
+let pendingUnifiedActions=[];
+
+function currentItemsForMentor(){
   return state.items
     .filter(x=>!x.deleted)
-    .slice(0,250)
+    .slice(0,300)
     .map(x=>({
-      id:x.id,
-      type:x.type,
-      area:x.area,
-      title:x.title,
-      details:x.details||"",
-      date:x.date||"",
-      time:x.time||"",
-      priority:x.priority||"none",
-      done:!!x.done
+      id:x.id,type:x.type,area:x.area,title:x.title,details:x.details||"",
+      date:x.date||"",time:x.time||"",priority:x.priority||"none",done:!!x.done
     }));
 }
 
-function commandSystemPrompt(){
+function unifiedSystemPrompt(){
   const now=new Date();
   const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"America/Argentina/Buenos_Aires";
-  return `Sos Mentor. Tu tarea es modificar una lista existente de tareas/eventos/ideas/notas según una instrucción del usuario.
+  return `Sos Mentor, un asistente personal que administra una lista existente.
 Fecha/hora local: ${now.toLocaleString("es-AR")}. Zona: ${tz}.
 
+El usuario puede mezclar en una sola frase:
+- cosas nuevas;
+- cambios sobre cosas ya existentes;
+- mover fechas/horas;
+- cambiar tipo o área;
+- marcar hecho o reabrir;
+- borrar.
+
 REGLAS:
-- Usá exclusivamente los IDs que aparecen en la lista para update/delete/complete/reopen.
-- No inventes que encontraste un elemento que no existe.
-- Si la instrucción se refiere claramente a un elemento por título/contexto, elegí ese ID.
-- Si hay dos candidatos realmente ambiguos, no modifiques ninguno: omití el cambio y explicalo en summary.
-- "mové", "pasá", "cambiá" puede referirse al tipo, área, fecha u hora según el contexto.
-- Para campos que NO cambian usá exactamente __KEEP__.
-- Para borrar fecha/hora/detalles usá __CLEAR__.
-- Para title, __KEEP__ significa conservar.
-- create solo cuando el usuario pide agregar algo nuevo.
-- delete solo cuando pide borrar/eliminar.
-- complete marca hecho; reopen vuelve a pendiente.
-- No hagas cambios adicionales por iniciativa propia.
-- Las fechas relativas claras se pueden resolver respecto de la fecha local actual.`;
+1. Compará primero con la lista actual.
+2. Si se refiere claramente a un elemento existente, usá ese ID y NO crees un duplicado.
+3. Si pide algo nuevo que no existe, create con id vacío.
+4. Podés devolver varias acciones.
+5. Para update/complete/reopen/delete usá solo IDs existentes.
+6. Si hay dos candidatos razonables y no sabés cuál quiso decir, no cambies ninguno: hacé una pregunta.
+7. No inventes fechas, nombres ni relaciones.
+8. Campos que no cambian: __KEEP__.
+9. Para borrar date/time/details: __CLEAR__.
+10. delete solo si pide borrar/eliminar definitivamente.
+11. complete = hecho; reopen = pendiente otra vez.
+12. “pasalo a estudio/militancia/personal” cambia area.
+13. “convertí esto en evento/tarea/idea/nota/esperando” cambia type.
+14. Fechas relativas claras se resuelven con la fecha actual.
+15. Área:
+   militancia = actividad política/agrupación/centro/asamblea/reunión militante;
+   estudio = materias/exámenes/clases/TP/lecturas;
+   personal = familia/salud/compras/viajes/casa/ocio/dinero;
+   sin_categoria = no inferible.
+16. No hagas cambios no pedidos.
+17. summary: breve explicación de lo entendido.
+18. questions: solo ambigüedades reales.`;
 }
 
-async function proposeMentorChanges(instructionOverride=null){
-  const instruction=(instructionOverride||commandInput.value).trim();
-  if(!instruction){
-    setStatus(commandStatus,"Decime qué querés cambiar.","err");return;
-  }
-  const items=activeItemsForAI();
-  if(!items.length){
-    setStatus(commandStatus,"Todavía no hay elementos cargados para modificar.","err");return;
-  }
-
-  commandBtn.disabled=true;
-  commandBtn.textContent="Pensando…";
-  setStatus(commandStatus,"Mentor está buscando qué elementos querés cambiar…","");
-
-  try{
-    const payload=`INSTRUCCIÓN DEL USUARIO:
-${instruction}
+async function interpretUnified(text, extraParts=[]){
+  const payload=`INSTRUCCIÓN DEL USUARIO:
+${text}
 
 ELEMENTOS ACTUALES:
-${JSON.stringify(items)}`;
+${JSON.stringify(currentItemsForMentor())}`;
 
-    const result=await geminiRequest(
-      [{text:payload}],
-      commandSchema,
-      commandSystemPrompt()
-    );
+  return await geminiRequest(
+    [...extraParts,{text:payload}],
+    unifiedSchema,
+    unifiedSystemPrompt()
+  );
+}
 
-    pendingChanges=Array.isArray(result.changes)?result.changes:[];
-    renderChangePreview(result.summary||"");
-    setStatus(commandStatus,pendingChanges.length
-      ? `${pendingChanges.length} cambio${pendingChanges.length===1?"":"s"} propuesto${pendingChanges.length===1?"":"s"}.`
-      : "No encontré cambios seguros para aplicar.",
-      pendingChanges.length?"ok":""
-    );
-  }catch(e){
-    console.error("Mentor command:",e);
-    setStatus(commandStatus,e.message||"No pude interpretar los cambios.","err");
-  }finally{
-    commandBtn.disabled=false;
-    commandBtn.textContent="✦ Proponer cambios";
+function unifiedActionLabel(a){
+  return ({create:"Agregar",update:"Modificar",complete:"Marcar hecho",reopen:"Reabrir",delete:"Eliminar"})[a]||a;
+}
+
+function renderUnifiedPreview(result){
+  pendingUnifiedActions=Array.isArray(result.actions)?result.actions:[];
+  const rows=[];
+
+  if(result.summary){
+    rows.push(`<div class="note" style="margin-bottom:7px">${esc(result.summary)}</div>`);
   }
-}
 
-function changeLabel(c){
-  const x=c.id?getItem(c.id):null;
-  const name=x?.title || (c.title!=="__KEEP__"?c.title:"Elemento");
-  const action={
-    update:"Modificar",
-    delete:"Eliminar",
-    complete:"Marcar hecho",
-    reopen:"Reabrir",
-    create:"Crear"
-  }[c.action]||c.action;
-  const bits=[];
-  if(c.type!=="KEEP")bits.push(`tipo → ${c.type}`);
-  if(c.area!=="KEEP")bits.push(`área → ${areaLabel(c.area)}`);
-  if(c.title!=="__KEEP__")bits.push(`título → ${c.title}`);
-  if(c.date!=="__KEEP__")bits.push(c.date==="__CLEAR__"?"quitar fecha":`fecha → ${c.date}`);
-  if(c.time!=="__KEEP__")bits.push(c.time==="__CLEAR__"?"quitar hora":`hora → ${c.time}`);
-  if(c.priority!=="KEEP")bits.push(`prioridad → ${c.priority}`);
-  return {action,name,bits};
-}
+  for(const a of pendingUnifiedActions){
+    const x=a.id?getItem(a.id):null;
+    const name=x?.title || (a.title!=="__KEEP__"?a.title:"Nuevo elemento");
+    const bits=[];
 
-function renderChangePreview(summary){
-  if(!pendingChanges.length){
-    commandPreview.classList.remove("visible");
-    changeRows.innerHTML="";
-    return;
+    if(a.type!=="KEEP")bits.push(`tipo → ${a.type}`);
+    if(a.area!=="KEEP")bits.push(`área → ${areaLabel(a.area)}`);
+    if(a.title!=="__KEEP__")bits.push(`título → ${a.title}`);
+    if(a.date!=="__KEEP__")bits.push(a.date==="__CLEAR__"?"quitar fecha":`fecha → ${a.date}`);
+    if(a.time!=="__KEEP__")bits.push(a.time==="__CLEAR__"?"quitar hora":`hora → ${a.time}`);
+    if(a.priority!=="KEEP")bits.push(`prioridad → ${a.priority}`);
+
+    rows.push(`<div class="actionRow">
+      <span class="actionTag">${esc(unifiedActionLabel(a.action))}</span>
+      <b>${esc(name)}</b>
+      ${bits.length?`<div class="meta">${esc(bits.join(" · "))}</div>`:""}
+      ${a.reason?`<div class="note">${esc(a.reason)}</div>`:""}
+    </div>`);
   }
-  const summaryHtml=summary?`<div class="note" style="margin-bottom:7px">${esc(summary)}</div>`:"";
-  changeRows.innerHTML=summaryHtml+pendingChanges.map(c=>{
-    const d=changeLabel(c);
-    return `<div class="changeRow">
-      <span class="changeAction">${esc(d.action)}</span>
-      <b>${esc(d.name)}</b>
-      ${d.bits.length?`<div class="meta">${esc(d.bits.join(" · "))}</div>`:""}
-      ${c.reason?`<div class="note">${esc(c.reason)}</div>`:""}
-    </div>`;
-  }).join("");
-  commandPreview.classList.add("visible");
+
+  for(const q of (result.questions||[])){
+    rows.push(`<div class="actionRow"><span class="actionTag">Pregunta</span>${esc(q)}</div>`);
+  }
+
+  actionRows.innerHTML=rows.join("");
+  actionPreview.classList.toggle("visible",rows.length>0);
 }
 
-function normalizeCommandDate(v,current){
+function normDate(v,current){
   if(v==="__KEEP__")return current||null;
   if(v==="__CLEAR__")return null;
   return validDate(v)?v:(current||null);
 }
-function normalizeCommandTime(v,current){
+function normTime(v,current){
   if(v==="__KEEP__")return current||null;
   if(v==="__CLEAR__")return null;
   return validTime(v)?v:(current||null);
 }
 
-function applyPendingChanges(){
-  if(!pendingChanges.length)return;
+function applyUnifiedActions(){
+  if(!pendingUnifiedActions.length)return;
   const now=nowIso();
 
-  for(const c of pendingChanges){
-    if(c.action==="create"){
+  for(const a of pendingUnifiedActions){
+    if(a.action==="create"){
       state.items.push({
         id:uid(),
-        type:c.type==="KEEP"?"task":c.type,
-        area:c.area==="KEEP"?"sin_categoria":c.area,
-        title:c.title==="__KEEP__"?"Nuevo elemento":c.title,
-        details:c.details==="__KEEP__"||c.details==="__CLEAR__"?"":c.details,
-        date:normalizeCommandDate(c.date,null),
-        time:normalizeCommandTime(c.time,null),
+        type:a.type==="KEEP"?"task":a.type,
+        area:a.area==="KEEP"?"sin_categoria":a.area,
+        title:a.title==="__KEEP__"?"Nuevo elemento":a.title,
+        details:a.details==="__KEEP__"||a.details==="__CLEAR__"?"":a.details,
+        date:normDate(a.date,null),
+        time:normTime(a.time,null),
         end_date:null,end_time:null,
-        priority:c.priority==="KEEP"?"none":c.priority,
+        priority:a.priority==="KEEP"?"none":a.priority,
         needs_confirmation:false,uncertainty:"",
-        done:false,created:now,updatedAt:now,deleted:false,source:"[Mentor: cambio]"
+        done:false,created:now,updatedAt:now,deleted:false,source:"[Mentor]"
       });
       continue;
     }
 
-    const x=getItem(c.id);
+    const x=getItem(a.id);
     if(!x||x.deleted)continue;
 
-    if(c.action==="delete"){
-      x.deleted=true;
-    }else if(c.action==="complete"){
-      x.done=true;
-    }else if(c.action==="reopen"){
-      x.done=false;
-    }else if(c.action==="update"){
-      if(c.type!=="KEEP")x.type=c.type;
-      if(c.area!=="KEEP")x.area=c.area;
-      if(c.title!=="__KEEP__")x.title=c.title;
-      if(c.details!=="__KEEP__")x.details=c.details==="__CLEAR__"?"":c.details;
-      x.date=normalizeCommandDate(c.date,x.date);
-      x.time=normalizeCommandTime(c.time,x.time);
-      if(c.priority!=="KEEP")x.priority=c.priority;
+    if(a.action==="delete")x.deleted=true;
+    else if(a.action==="complete")x.done=true;
+    else if(a.action==="reopen")x.done=false;
+    else if(a.action==="update"){
+      if(a.type!=="KEEP")x.type=a.type;
+      if(a.area!=="KEEP")x.area=a.area;
+      if(a.title!=="__KEEP__")x.title=a.title;
+      if(a.details!=="__KEEP__")x.details=a.details==="__CLEAR__"?"":a.details;
+      x.date=normDate(a.date,x.date);
+      x.time=normTime(a.time,x.time);
+      if(a.priority!=="KEEP")x.priority=a.priority;
     }
     x.updatedAt=now;
   }
 
   save();
-  pendingChanges=[];
-  commandInput.value="";
-  commandPreview.classList.remove("visible");
-  changeRows.innerHTML="";
-  setStatus(commandStatus,"Cambios aplicados.","ok");
+  pendingUnifiedActions=[];
+  actionRows.innerHTML="";
+  actionPreview.classList.remove("visible");
+  setStatus(textStatus,"Aplicado.","ok");
 }
 
-function cancelPendingChanges(){
-  pendingChanges=[];
-  commandPreview.classList.remove("visible");
-  changeRows.innerHTML="";
-  setStatus(commandStatus,"Cambios cancelados.","");
+function cancelUnifiedActions(){
+  pendingUnifiedActions=[];
+  actionRows.innerHTML="";
+  actionPreview.classList.remove("visible");
+  setStatus(textStatus,"Cancelado.","");
+}
+
+async function handleMentorText(){
+  const text=inbox.value.trim();
+
+  if(!text && !selectedImages.length){
+    setStatus(textStatus,"Escribí algo o agregá una foto primero.","err");
+    return;
+  }
+
+  organizeBtn.disabled=true;
+  organizeBtn.textContent="Entendiendo…";
+  setStatus(textStatus,"Mentor está comparando tu pedido con lo que ya tenés…","");
+
+  try{
+    const result=await interpretUnified(
+      text || "Analizá las imágenes adjuntas y decidí si corresponden a elementos nuevos o cambios sobre elementos existentes.",
+      imageParts()
+    );
+
+    renderUnifiedPreview(result);
+    inbox.value="";
+    clearPhotos();
+
+    const n=(result.actions||[]).length;
+    const q=(result.questions||[]).length;
+    setStatus(
+      textStatus,
+      q?`Entendí ${n} acción${n===1?"":"es"} y necesito ${q} aclaración${q===1?"":"es"}.`
+       :`Entendí ${n} acción${n===1?"":"es"}. Revisalas y aplicalas.`,
+      q?"":"ok"
+    );
+  }catch(e){
+    console.error("Mentor unified:",e);
+    setStatus(textStatus,e.message||"No pude interpretar lo que pediste.","err");
+    settingsBox.open=true;
+  }finally{
+    organizeBtn.disabled=false;
+    organizeBtn.textContent="✨ Entender y hacer";
+  }
 }
 
 /* FOTOS / CAPTURAS */
@@ -1555,7 +1591,10 @@ function blobToBase64(blob){
 }
 
 async function processRecordedAudio(){
-  if(!chunks.length){setStatus(audioStatus,"No se grabó audio.","err");return;}
+  if(!chunks.length){
+    setStatus(audioStatus,"No se grabó audio.","err");
+    return;
+  }
 
   try{
     const mime=recorder.mimeType || chunks[0]?.type || "audio/webm";
@@ -1568,72 +1607,36 @@ async function processRecordedAudio(){
     const b64=await blobToBase64(blob);
     const quality=document.querySelector('input[name="audioMode"]:checked')?.value||"fast";
 
-    // Si estamos en modo CAMBIOS, primero convertimos el audio en una instrucción breve.
-    if(mentorMode==="change"){
-      setStatus(audioStatus,quality==="precise"
-        ?"Transcribiendo tu instrucción con más precisión…"
-        :"Entendiendo la instrucción…","");
+    setStatus(audioStatus,quality==="precise"?"Transcribiendo con precisión…":"Entendiendo tu pedido…","");
 
-      let instruction;
-      if(quality==="precise"){
-        instruction=await geminiRawText(
-          [{type:"audio",mime_type:mime.split(";")[0],data:b64}],
-          "Transcribí fielmente este audio en español rioplatense. Devolvé solamente lo dicho, limpiando muletillas obvias pero sin resumir ni agregar información."
-        );
-      }else{
-        instruction=await geminiRawText(
-          [{type:"audio",mime_type:mime.split(";")[0],data:b64}],
-          "Convertí este audio en una instrucción breve y fiel para modificar una lista de tareas/eventos. No agregues nada que la persona no haya dicho."
-        );
-      }
-
-      commandInput.value=instruction;
-      transcriptText.textContent=instruction;
-      transcript.style.display="block";
-      setMentorMode("change");
-      await proposeMentorChanges(instruction);
-      setStatus(audioStatus,"Instrucción entendida. Revisá los cambios propuestos.","ok");
-      return;
-    }
-
-    // MODO AGREGAR
-    if(quality==="precise"){
-      setStatus(audioStatus,"Transcribiendo con precisión…","");
-      const cleanTranscript=await geminiRawText(
-        [
-          {type:"audio",mime_type:mime.split(";")[0],data:b64},
-          ...imageParts()
-        ],
-        "Transcribí fielmente el audio en español rioplatense. Conservá nombres, fechas, materias y acciones. Limpiá solo muletillas evidentes. Si hay imágenes, usalas para corregir nombres o datos visibles cuando sea claro. No resumas."
-      );
-
-      transcriptText.textContent=cleanTranscript;
-      transcript.style.display="block";
-      setStatus(audioStatus,"Transcripción lista. Ahora estoy ordenando…","");
-
-      const result=await geminiRequest([{
-        text:`Organizá esta transcripción según las reglas del sistema. No inventes información.\n\nTRANSCRIPCIÓN:\n${cleanTranscript}`
-      }]);
-
-      // Evita mostrar una segunda transcripción generada.
-      result.transcript=cleanTranscript;
-      const n=ingest(result,"[audio preciso]");
-      clearPhotos();
-      setStatus(audioStatus,`Listo: ${n} elemento${n===1?"":"s"}.`,"ok");
-    }else{
-      setStatus(audioStatus,"Entendiendo y ordenando…","");
-      const result=await geminiRequest([
+    const instruction=await geminiRawText(
+      [
         {type:"audio",mime_type:mime.split(";")[0],data:b64},
-        ...imageParts(),
-        {text:selectedImages.length
-          ? "Modo rápido. Escuchá el audio y mirá las fotos. Organizá directamente lo accionable. En transcript devolvé solo una frase breve de control, no una transcripción completa. No dupliques elementos."
-          : "Modo rápido. Escuchá el audio y organizá directamente lo accionable. En transcript devolvé solo una frase breve de control, no una transcripción completa."
-        }
-      ]);
-      const n=ingest(result,selectedImages.length?"[audio + fotos rápido]":"[audio rápido]");
-      clearPhotos();
-      setStatus(audioStatus,`Listo: ${n} elemento${n===1?"":"s"}.`,"ok");
-    }
+        ...imageParts()
+      ],
+      quality==="precise"
+        ?"Transcribí fielmente este audio en español rioplatense. Conservá nombres, fechas y acciones. Limpiá solo muletillas evidentes. No resumas."
+        :"Convertí este audio en una instrucción breve pero completa para un asistente personal. Conservá todas las acciones, fechas, nombres y referencias a cosas ya existentes. No inventes."
+    );
+
+    transcriptText.textContent=instruction;
+    transcript.style.display="block";
+
+    setStatus(audioStatus,"Comparando con lo que ya tenés…","");
+    const result=await interpretUnified(instruction);
+
+    renderUnifiedPreview(result);
+    clearPhotos();
+
+    const n=(result.actions||[]).length;
+    const q=(result.questions||[]).length;
+
+    setStatus(
+      audioStatus,
+      q?`Entendí ${n} acción${n===1?"":"es"} y necesito ${q} aclaración${q===1?"":"es"}.`
+       :`Entendí ${n} acción${n===1?"":"es"}. Revisalas y aplicalas.`,
+      q?"":"ok"
+    );
   }catch(e){
     console.error("Mentor/Gemini audio:",e);
     setStatus(audioStatus,e.message||"No pude procesar el audio.","err");
@@ -1981,7 +1984,6 @@ function renderItem(x){
       ${(x.type==="task"||x.type==="waiting")?`<button class="mini secondary" onclick="toggleDone('${x.id}')">${x.done?"Reabrir":"Hecho"}</button>`:""}
       ${x.type==="event"&&x.date?`<button class="mini secondary" onclick="openCalendar('${x.id}')">Google Calendar</button>`:""}
       <button class="mini ghost" onclick="editItem('${x.id}')">Editar</button>
-      <button class="mini aiChangeBtn" onclick="askChangeForItem('${x.id}')">✦ Pedir cambio</button>
       <button class="mini danger" onclick="deleteItem('${x.id}')">Eliminar</button>
     </div>
   </div>`;
@@ -2037,13 +2039,7 @@ function saveEditor(){
   save();
   closeEditor();
 }
-function askChangeForItem(id){
-  const x=getItem(id);if(!x)return;
-  setMentorMode("change");
-  commandInput.value=`Quiero cambiar "${x.title}": `;
-  commandInput.focus();
-  commandInput.setSelectionRange(commandInput.value.length,commandInput.value.length);
-}
+
 function openCalendar(id){
   const x=getItem(id);if(!x?.date)return;
   const compact=x.date.replaceAll("-","");
