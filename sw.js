@@ -1,5 +1,5 @@
-const CACHE="asistente-ia-v7-2";
-const ASSETS=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png"];
+const CACHE="mentor-v7-3";
+const ASSETS=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png","./mentor-icon.png"];
 
 self.addEventListener("install",event=>{
   self.skipWaiting();
@@ -15,7 +15,7 @@ self.addEventListener("activate",event=>{
 });
 
 self.addEventListener("fetch",event=>{
-  if(event.request.method!=="GET") return;
+  if(event.request.method!=="GET")return;
   event.respondWith(
     fetch(event.request).then(response=>{
       const copy=response.clone();

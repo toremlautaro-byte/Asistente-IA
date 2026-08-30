@@ -1,6 +1,6 @@
 {
-  "name": "Asistente IA",
-  "short_name": "Asistente IA",
+  "name": "Mentor",
+  "short_name": "Mentor",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#080a0f",

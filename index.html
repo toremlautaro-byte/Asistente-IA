@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#0b0f17">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Asistente IA">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Mentor">
+<link rel="apple-touch-icon" href="icon-512.png">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Asistente IA</title>
+<title>Mentor</title>
 <style>
 :root{
   --bg:#f5f6f8;--panel:#fff;--ink:#172033;--muted:#667085;--line:#e4e7ec;
@@ -356,17 +356,62 @@ button.record{
   .topbar select{width:100%}
 }
 
+
+/* Mentor identity */
+.mentorHeader{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:2px 0 18px;
+}
+.mentorMark{
+  width:58px;
+  height:58px;
+  border-radius:16px;
+  object-fit:cover;
+  box-shadow:0 8px 28px rgba(87,104,255,.18);
+}
+.mentorHeader h1{
+  margin:0;
+  font-size:29px;
+  font-weight:760;
+  letter-spacing:.24em;
+  background:linear-gradient(90deg,#6ea0ff,#8a7cff,#b176ff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.mentorTag{
+  margin-top:2px;
+  color:#aeb7c6;
+  font-size:12px;
+  letter-spacing:.08em;
+}
+.mentorHeader .sub{margin-top:5px;margin-bottom:0}
+@media(max-width:600px){
+  .mentorMark{width:52px;height:52px;border-radius:15px}
+  .mentorHeader{gap:12px}
+  .mentorHeader h1{font-size:25px;letter-spacing:.19em}
+  .mentorHeader .sub{font-size:12.5px}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Asistente IA</h1>
-  <div class="sub">Versión 7.2 · sincronización estable + audio + fotos + categorías.</div>
+  <div class="mentorHeader">
+    <img src="mentor-icon.png" class="mentorMark" alt="Mentor">
+    <div>
+      <h1>MENTOR</h1>
+      <div class="mentorTag">Ordená. Pensá. Avanzá.</div>
+      <div class="sub">Tu espacio para ordenar lo que pensás, hacés y tenés pendiente.</div>
+    </div>
+  </div>
 
   <details class="panel settings" id="settingsBox">
     <summary>⚙️ Configuración de IA</summary>
     <div class="settings-body">
-      <label>Clave de Gemini</label>
+      <label>Clave de Gemini (Google AI Studio)</label>
       <div class="keyline">
         <input id="apiKey" type="password" placeholder="Pegá tu clave de Google AI Studio">
         <button class="secondary" onclick="testKey()">Probar</button>
@@ -471,14 +516,14 @@ button.record{
   </div>
 
   <footer>
-    La app conserva una copia local y, si activás sincronización, mantiene compu e iPhone vinculados mediante tu propio Google Sheet. Audio, texto y fotos enviados para interpretar viajan a Gemini.
+    Mentor conserva una copia local y, si activás sincronización, mantiene compu e iPhone vinculados mediante tu propio Google Sheet. Audio, texto y fotos enviados para interpretar viajan a Gemini.
   </footer>
 </div>
 <input type="file" id="importFile" accept="application/json" style="display:none">
 
 <script>
 const MODEL='gemini-3.5-flash-lite';
-const FALLBACK_MODEL='gemini-flash-lite-latest';
+const FALLBACK_MODEL='gemini-3.1-flash-lite';
 const DATA_KEY='assistant_ai_items_v4'; // se conserva para no perder lo ya cargado
 const KEY_KEY='assistant_ai_gemini_key_v4';
 const SYNC_URL_KEY='assistant_ai_sync_url_v7';
@@ -588,108 +633,137 @@ function saveKey(){
 rememberKey.addEventListener('change',saveKey);
 apiKey.addEventListener('change',saveKey);
 
-function extractInteractionText(raw){
-  const steps=Array.isArray(raw?.steps)?raw.steps:[];
-  const texts=[];
-  for(const step of steps){
-    if(step?.type!=="model_output") continue;
-    for(const c of (step.content||[])){
-      if(c?.type==="text" && typeof c.text==="string") texts.push(c.text);
+function toGenerateContentSchema(s){
+  if(!s || typeof s!=="object") return s;
+  const out={};
+
+  if(s.type){
+    const map={object:"OBJECT",array:"ARRAY",string:"STRING",number:"NUMBER",integer:"INTEGER",boolean:"BOOLEAN"};
+    out.type=map[s.type]||String(s.type).toUpperCase();
+  }
+  if(s.description) out.description=s.description;
+  if(s.enum) out.enum=s.enum;
+  if(s.required) out.required=s.required;
+  if(s.properties){
+    out.properties={};
+    for(const [k,v] of Object.entries(s.properties)){
+      out.properties[k]=toGenerateContentSchema(v);
     }
   }
-  if(!texts.length && typeof raw?.output_text==="string") return raw.output_text;
-  return texts.join("");
+  if(s.items) out.items=toGenerateContentSchema(s.items);
+
+  return out;
+}
+
+function extractGenerateText(raw){
+  return raw?.candidates?.[0]?.content?.parts
+    ?.map(p=>typeof p.text==="string"?p.text:"")
+    .join("") || "";
+}
+
+function apiErrorMessage(raw,status){
+  const msg=raw?.error?.message || raw?.message || "";
+  if(msg) return `Gemini ${status}: ${msg}`;
+  return `Gemini devolvió error ${status}.`;
 }
 
 function isModelUnavailable(raw,status){
   const msg=(raw?.error?.message||"").toLowerCase();
   return status===404 || (status===400 && (
     msg.includes("no longer available") ||
-    msg.includes("not found") ||
-    msg.includes("not supported") ||
-    msg.includes("model")
+    msg.includes("model not found") ||
+    msg.includes("not supported for") ||
+    msg.includes("model is not")
   ));
 }
 
-async function interactionRequest(model,input){
+async function generateContentRequest(model,parts){
   const body={
-    model,
-    input,
-    system_instruction:promptRules(),
-    response_format:{
-      type:"text",
-      mime_type:"application/json",
-      schema:responseSchema
+    systemInstruction:{
+      parts:[{text:promptRules()}]
     },
-    store:false
+    contents:[{
+      role:"user",
+      parts:parts.map(p=>{
+        if(typeof p?.text==="string"){
+          return {text:p.text};
+        }
+        if(p?.type==="audio" && p?.data){
+          return {
+            inlineData:{
+              mimeType:(p.mime_type||"audio/webm").split(";")[0],
+              data:p.data
+            }
+          };
+        }
+        if(p?.type==="image" && p?.data){
+          return {
+            inlineData:{
+              mimeType:p.mime_type||"image/jpeg",
+              data:p.data
+            }
+          };
+        }
+        return null;
+      }).filter(Boolean)
+    }],
+    generationConfig:{
+      temperature:0.12,
+      responseMimeType:"application/json",
+      responseSchema:toGenerateContentSchema(responseSchema)
+    }
   };
 
-  const res=await fetch("https://generativelanguage.googleapis.com/v1beta/interactions",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "x-goog-api-key":getKey()
-    },
-    body:JSON.stringify(body)
-  });
+  const res=await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-goog-api-key":getKey()
+      },
+      body:JSON.stringify(body)
+    }
+  );
 
   const raw=await res.json().catch(()=>({}));
 
   if(!res.ok){
-    const err=new Error(raw?.error?.message||`Error ${res.status}`);
+    const err=new Error(apiErrorMessage(raw,res.status));
     err.raw=raw;
     err.status=res.status;
     throw err;
   }
 
-  if(raw?.status && raw.status!=="completed"){
-    throw new Error(`La interacción terminó con estado: ${raw.status}`);
-  }
+  const txt=extractGenerateText(raw);
 
-  const txt=extractInteractionText(raw);
-  if(!txt) throw new Error("Gemini no devolvió contenido de texto.");
+  if(!txt){
+    const reason=raw?.candidates?.[0]?.finishReason;
+    throw new Error(reason
+      ? `Gemini no devolvió contenido (${reason}).`
+      : "Gemini no devolvió contenido."
+    );
+  }
 
   try{
     return JSON.parse(txt);
-  }catch{
-    throw new Error("Gemini respondió, pero el JSON estructurado no se pudo interpretar.");
+  }catch(e){
+    console.error("Respuesta Gemini no JSON:",txt);
+    throw new Error("Gemini respondió, pero no pude interpretar la respuesta estructurada.");
   }
 }
 
 async function geminiRequest(parts){
-  if(!getKey()) throw new Error("Falta la clave de Gemini. Abrí Configuración de IA y pegala.");
+  if(!getKey()){
+    throw new Error("Falta la clave de Gemini. Abrí Configuración de IA y pegala.");
+  }
   saveKey();
 
-  const input=[];
-  for(const p of parts){
-    if(typeof p?.text==="string"){
-      input.push({type:"text",text:p.text});
-    }else if(p?.type==="audio" && p?.data){
-      input.push({
-        type:"audio",
-        data:p.data,
-        mime_type:(p.mime_type||"audio/webm").split(";")[0]
-      });
-    }else if(p?.type==="image" && p?.data){
-      input.push({
-        type:"image",
-        data:p.data,
-        mime_type:p.mime_type||"image/jpeg"
-      });
-    }else if(p?.inlineData?.data){
-      input.push({
-        type:"audio",
-        data:p.inlineData.data,
-        mime_type:(p.inlineData.mimeType||"audio/webm").split(";")[0]
-      });
-    }
-  }
-
   try{
-    return await interactionRequest(MODEL,input);
+    return await generateContentRequest(MODEL,parts);
   }catch(e){
     if(isModelUnavailable(e.raw,e.status)){
-      return await interactionRequest(FALLBACK_MODEL,input);
+      return await generateContentRequest(FALLBACK_MODEL,parts);
     }
     throw e;
   }
@@ -701,7 +775,7 @@ async function testKey(){
     await geminiRequest([{text:"Prueba técnica. Devolvé transcript vacío, cero items y cero questions."}]);
     setStatus(textStatus,"Conexión correcta.","ok");
     settingsBox.open=false;
-  }catch(e){setStatus(textStatus,e.message,"err");settingsBox.open=true;}
+  }catch(e){console.error("Mentor/Gemini:",e);setStatus(textStatus,e.message,"err");settingsBox.open=true;}
 }
 
 function setStatus(el,msg,cls){el.textContent=msg;el.className='status '+(cls||'')}
@@ -752,7 +826,7 @@ async function organizeText(){
     clearPhotos();
     setStatus(textStatus,`Listo: ${n} elemento${n===1?"":"s"}.`,"ok");
   }catch(e){
-    setStatus(textStatus,e.message,"err");settingsBox.open=true;
+    console.error("Mentor/Gemini:",e);setStatus(textStatus,e.message,"err");settingsBox.open=true;
   }finally{
     organizeBtn.disabled=false;organizeBtn.textContent="✨ Entender y ordenar texto";
   }
@@ -1000,7 +1074,7 @@ async function processRecordedAudio(){
     clearPhotos();
     setStatus(audioStatus,`Listo: entendí el material y generé ${n} elemento${n===1?"":"s"}.`,"ok");
   }catch(e){
-    setStatus(audioStatus,e.message||"No pude procesar el audio.","err");
+    console.error("Mentor/Gemini audio:",e);setStatus(audioStatus,e.message||"No pude procesar el audio.","err");
     settingsBox.open=true;
   }
 }
