@@ -641,6 +641,43 @@ button.record{
   .minimalTopbar select{max-width:125px}
 }
 
+
+/* Mentor v7.7 — ajustes secundarios y mensajes transitorios */
+.advancedSettings{
+  border-top:1px solid #2a3140;
+  margin-top:4px;
+  padding-top:5px;
+}
+.advancedSettings>summary{
+  cursor:pointer;
+  color:#c7cfdb;
+  font-size:12px;
+  padding:7px 4px;
+  list-style:none;
+}
+.advancedSettings>summary::-webkit-details-marker{display:none}
+.advancedSettingsBody{
+  display:grid;
+  gap:8px;
+  margin-top:5px;
+}
+.innerSettings{
+  background:#10141b;
+  border:1px solid #2b3340;
+  border-radius:10px;
+  padding:9px;
+  box-shadow:none;
+}
+.innerSettings summary{
+  font-size:11.5px;
+  color:#9ca7b8;
+}
+.moreToolsMenu{
+  width:min(320px,88vw);
+  max-height:72vh;
+  overflow:auto;
+}
+
 </style>
 </head>
 <body>
@@ -654,45 +691,10 @@ button.record{
     </div>
   </div>
 
-  <details class="panel settings" id="settingsBox">
-    <summary>⚙️ Configuración de IA</summary>
-    <div class="settings-body">
-      <label>Clave de Gemini (Google AI Studio)</label>
-      <div class="keyline">
-        <input id="apiKey" type="password" placeholder="Pegá tu clave de Google AI Studio">
-        <button class="secondary" onclick="testKey()">Probar</button>
-        <button class="ghost" onclick="toggleKey()">Ver / ocultar</button>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <label style="font-weight:500;margin:0"><input id="rememberKey" type="checkbox"> Recordar la clave en este dispositivo</label>
-      </div>
-    </div>
-  </details>
+  
 
 
-  <details class="panel settings" id="syncBox">
-    <summary>☁️ Sincronización compu ↔ iPhone</summary>
-    <div class="settings-body">
-      <div class="syncGrid">
-        <div>
-          <label>URL del puente de Google</label>
-          <input id="syncUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec">
-        </div>
-        <div>
-          <label>Clave de sincronización</label>
-          <input id="syncSecret" type="password" placeholder="Pegá la clave">
-        </div>
-      </div>
-      <div class="row" style="margin-top:9px">
-        <button class="secondary" onclick="connectSync()">Conectar y sincronizar</button>
-        <button class="ghost" onclick="syncNow()">Sincronizar ahora</button>
-        <button class="ghost" onclick="diagnoseSync()">Probar puente</button>
-        <button class="ghost" onclick="toggleSyncSecret()">Ver / ocultar clave</button>
-      </div>
-      <div id="syncStatus" class="status"><span class="syncDot off"></span>No configurado.</div>
-      <div class="hint">Una vez configurado en cada dispositivo, sincroniza automáticamente al abrir, volver a la app y aproximadamente cada 15 segundos.</div>
-    </div>
-  </details>
+  
 
   <details class="panel settings notificationSettings">
     <summary>🔔 Avisos</summary>
@@ -782,6 +784,49 @@ button.record{
     <details class="moreTools">
       <summary>•••</summary>
       <div class="moreToolsMenu">
+        <details class="advancedSettings">
+          <summary>Configuración</summary>
+          <div class="advancedSettingsBody">
+            <details class="settings innerSettings" id="settingsBox">
+    <summary>⚙️ Configuración de IA</summary>
+    <div class="settings-body">
+      <label>Clave de Gemini (Google AI Studio)</label>
+      <div class="keyline">
+        <input id="apiKey" type="password" placeholder="Pegá tu clave de Google AI Studio">
+        <button class="secondary" onclick="testKey()">Probar</button>
+        <button class="ghost" onclick="toggleKey()">Ver / ocultar</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label style="font-weight:500;margin:0"><input id="rememberKey" type="checkbox"> Recordar la clave en este dispositivo</label>
+      </div>
+    </div>
+  </details>
+            <details class="settings innerSettings" id="syncBox">
+    <summary>☁️ Sincronización compu ↔ iPhone</summary>
+    <div class="settings-body">
+      <div class="syncGrid">
+        <div>
+          <label>URL del puente de Google</label>
+          <input id="syncUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <div>
+          <label>Clave de sincronización</label>
+          <input id="syncSecret" type="password" placeholder="Pegá la clave">
+        </div>
+      </div>
+      <div class="row" style="margin-top:9px">
+        <button class="secondary" onclick="connectSync()">Conectar y sincronizar</button>
+        <button class="ghost" onclick="syncNow()">Sincronizar ahora</button>
+        <button class="ghost" onclick="diagnoseSync()">Probar puente</button>
+        <button class="ghost" onclick="toggleSyncSecret()">Ver / ocultar clave</button>
+      </div>
+      <div id="syncStatus" class="status"><span class="syncDot off"></span>No configurado.</div>
+      <div class="hint">Una vez configurado en cada dispositivo, sincroniza automáticamente al abrir, volver a la app y aproximadamente cada 15 segundos.</div>
+    </div>
+  </details>
+          </div>
+        </details>
+
         <button class="secondary" onclick="exportJSON()">Copia de seguridad</button>
         <button class="secondary" onclick="importJSON()">Importar</button>
         <button class="danger" onclick="wipeAll()">Borrar todo</button>
@@ -1338,6 +1383,7 @@ function unifiedActionLabel(a){
 }
 
 let lastUndoSnapshot=null;
+let lastActionHideTimer=null;
 
 function describeActions(actions){
   const c={create:0,update:0,complete:0,reopen:0,delete:0};
@@ -1412,14 +1458,29 @@ function applyUnifiedDirect(actions){
   return applied;
 }
 
+
+function showTransientActionMessage(text,canUndo=false){
+  clearTimeout(lastActionHideTimer);
+
+  lastActionText.textContent=text||"";
+  lastAction.classList.toggle("visible",!!text);
+  undoBtn.style.display=canUndo?"inline-block":"none";
+
+  if(text){
+    lastActionHideTimer=setTimeout(()=>{
+      lastAction.classList.remove("visible");
+      lastActionText.textContent="";
+      undoBtn.style.display="none";
+    },60000);
+  }
+}
+
 function showAppliedResult(result){
   const actions=result.actions||[];
   const applied=applyUnifiedDirect(actions);
   const summary=result.summary||describeActions(actions);
 
-  lastActionText.textContent=summary;
-  lastAction.classList.toggle("visible",!!(applied||summary));
-  undoBtn.style.display=applied?"inline-block":"none";
+  showTransientActionMessage(summary,applied>0);
 
   const qs=result.questions||[];
   showQuestions(qs);
@@ -1434,8 +1495,7 @@ function undoLastMentorAction(){
     normalizeState();
     lastUndoSnapshot=null;
     save();
-    lastActionText.textContent="Último cambio deshecho.";
-    undoBtn.style.display="none";
+    showTransientActionMessage("Último cambio deshecho.",false);
   }catch{}
 }
 
@@ -2118,6 +2178,7 @@ async function showMentorNotification(x,minutes){
   }catch{
     try{new Notification(title,options)}catch{}
   }
+  await setMentorNotificationBadge();
 }
 async function checkDueNotifications(){
   if(localStorage.getItem(NOTIF_ENABLED_KEY)!=="1")return;
@@ -2141,20 +2202,15 @@ async function checkDueNotifications(){
   }
   saveNotificationSentMap(sent);
 }
-function updateMentorBadge(){
+async function setMentorNotificationBadge(){
   if(!("setAppBadge" in navigator))return;
-  const end=new Date();end.setHours(23,59,59,999);
-  let count=0;
-  for(const x of state.items){
-    if(x.deleted||x.done||!["task","event"].includes(x.type)||!x.date)continue;
-    const d=new Date(`${x.date}T${x.time||"23:59"}:00`);
-    if(!Number.isNaN(d.getTime())&&d<=end)count++;
-  }
-  try{
-    if(count)navigator.setAppBadge(count);
-    else navigator.clearAppBadge?.();
-  }catch{}
+  try{await navigator.setAppBadge(1)}catch{}
 }
+async function clearMentorBadge(){
+  if(!("clearAppBadge" in navigator))return;
+  try{await navigator.clearAppBadge()}catch{}
+}
+
 function initMentorNotifications(){
   if(notificationLead)notificationLead.value=localStorage.getItem(NOTIF_LEAD_KEY)||"15";
   if(localStorage.getItem(NOTIF_ENABLED_KEY)==="1"&&"Notification" in window&&Notification.permission==="granted"){
@@ -2163,10 +2219,13 @@ function initMentorNotifications(){
   clearInterval(notificationTimer);
   notificationTimer=setInterval(checkDueNotifications,30000);
   setTimeout(checkDueNotifications,1200);
-  setTimeout(updateMentorBadge,900);
+  setTimeout(clearMentorBadge,500);
 }
 document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden){checkDueNotifications();updateMentorBadge()}
+  if(!document.hidden){
+    clearMentorBadge();
+    checkDueNotifications();
+  }
 });
 
 /* RENDER */
@@ -2201,7 +2260,6 @@ function areaLabel(a){
 }
 function areaClass(a){
   return a==="militancia"?"area-militancia":a==="estudio"?"area-estudio":a==="personal"?"area-personal":"area-sin-categoria";
-  updateMentorBadge();
 }
 function renderItem(x){
   const meta=[];
