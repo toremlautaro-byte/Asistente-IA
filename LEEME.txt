@@ -1,0 +1,30 @@
+MENTOR 8.0 — modo oscuro y sincronización verificada
+
+ESTE ZIP ES UNA ACTUALIZACIÓN de la app web Mentor 7.9. No incluye tus datos personales: los elementos, las reglas, las claves y el puente están guardados en el navegador.
+
+ANTES DE PUBLICAR
+1. Abrí Mentor en EL CELULAR y LA COMPUTADORA y descargá un respaldo de cada uno desde Opciones > Descargar respaldo. Guardá ambos archivos. Esto es importante si existen datos diferentes.
+2. Actualizá TODOS los archivos del sitio web en la MISMA DIRECCIÓN donde ya usás Mentor. No cambies el dominio/URL, no desinstales la PWA ni limpies los datos del navegador. El almacenamiento conserva la clave assistant_ai_items_v4.
+3. Abrí de nuevo Mentor y recargá si aparece una versión anterior. La nueva caché es mentor-v8-0.
+4. Elegí modo claro u oscuro con el botón del sol/luna al lado de Opciones, arriba a la derecha. Se recuerda en cada dispositivo. Si no elegiste ninguno, sigue el tema del sistema.
+
+PARA VINCULAR EL CELULAR Y LA COMPUTADORA
+1. En ambos: Opciones > Configuración > Sincronización.
+2. Pegá exactamente la MISMA URL /exec de Google Apps Script y la MISMA clave de sincronización. El ZIP no contiene ni crea tu Apps Script o la hoja de Google: debés tener el puente anterior desplegado y configurado.
+3. Tocá «Conectar y sincronizar» en el primer dispositivo y después en el segundo. Verificá que aparezca «Sincronizado y verificado» en ambos.
+4. Compará el «Código de vínculo» que se muestra debajo del estado: tiene que ser IDÉNTICO en ambos. Es una huella corta de URL y clave; no revela la clave.
+5. Si tenías datos muy viejos en el celular que no se ven en la computadora, abrí Mentor en el celular ORIGINAL y sincronizá desde ese mismo navegador. También podés importar su respaldo en la computadora: en 8.0 Importar RESPALDO COMBINA, no sustituye los elementos preexistentes.
+6. Mentor conserva los elementos locales y les agrega los remotos por ID y marca de modificación, incluidos borrados. No elimina los datos de un dispositivo solo porque Google tenga una lista vacía.
+7. Para que Google sincronice realmente los datos, Apps Script debe responder a las acciones existentes ping y pull (JSONP), y sync (POST). El ZIP no puede conectar por sí solo dos dispositivos si la URL o clave son diferentes o si el puente no está operativo.
+
+CAMBIOS
+- El botón de apariencia permite claro / oscuro, paleta grafito y violeta.
+- La escritura usa POST cross-origin y lectura posterior; «Sincronizado y verificado» se muestra SOLO si el remoto contiene los IDs, fechas de modificación y campos de lo enviado.
+- Se reintenta la lectura para dar tiempo al Apps Script. Si Google falla, marca error sin descartar el almacenamiento local.
+- Los cambios realizados durante una sincronización se encolan para otra pasada.
+- «Probar puente» separa la lectura y conexión de la verificación de escritura.
+- Importar un respaldo combina los ítems por ID, conservando reglas preexistentes; no reemplaza todos los datos por una lista parcial.
+- Se mantiene el resto de la aplicación, incluidas las claves, la organización con IA, grabaciones, edición y filtros.
+
+LÍMITES REALES
+Esta versión NO puede comprobar desde el ZIP si Google recibió los elementos del teléfono: necesita que abras ambas instalaciones, publiques la actualización y uses las mismas credenciales. Las reglas de personalización siguen siendo locales y viajan con el respaldo, no con el puente que sincroniza elementos. El tema se guarda por dispositivo. No se incluye código Apps Script en el ZIP y no se modificó la hoja remota.
